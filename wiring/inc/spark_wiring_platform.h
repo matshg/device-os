@@ -110,7 +110,6 @@
 #define Wiring_Mesh 1
 #define Wiring_SPI1 1
 #define Wiring_LogConfig 1
-#define Wiring_NFC 1
 //#ifdef DEBUG_BUILD
 //#define Wiring_Rtt 1
 //#endif
@@ -118,6 +117,10 @@
 
 #if HAL_PLATFORM_WIFI
 #define Wiring_WiFi 1
+#endif
+
+#if HAL_PLATFORM_NFC
+#define Wiring_NFC 1
 #endif
 
 #if HAL_PLATFORM_CELLULAR
@@ -158,6 +161,10 @@
 
 #ifndef Wiring_WiFi
 #define Wiring_WiFi 0
+#endif
+
+#ifndef Wiring_NFC
+#define Wiring_NFC 0
 #endif
 
 #ifndef Wiring_Cellular
