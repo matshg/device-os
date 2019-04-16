@@ -43,13 +43,11 @@ void convertToHalUuid(const BleUuid& uuid, hal_ble_uuid_t* halUuid) {
     if (uuid.type() == BleUuidType::SHORT) {
         halUuid->type = BLE_UUID_TYPE_16BIT;
         halUuid->uuid16 = uuid.shorted();
-    }
-    else {
+    } else {
         halUuid->type = BLE_UUID_TYPE_128BIT;
         if (uuid.order() == BleUuidOrder::LSB) {
             uuid.full(halUuid->uuid128);
-        }
-        else {
+        } else {
             for (size_t i = 0, j = BLE_SIG_UUID_128BIT_LEN - 1; i < BLE_SIG_UUID_128BIT_LEN; i++, j--) {
                 halUuid->uuid128[i] = uuid.full()[j];
             }
@@ -76,8 +74,7 @@ BleUuid::BleUuid(const BleUuid& uuid) {
 BleUuid::BleUuid(const uint8_t* uuid128, BleUuidOrder order) : order_(order), shortUUID_(0x0000) {
     if (uuid128 == nullptr) {
         memset(fullUUID_, 0x00, BLE_SIG_UUID_128BIT_LEN);
-    }
-    else {
+    } else {
         memcpy(fullUUID_, uuid128, BLE_SIG_UUID_128BIT_LEN);
     }
     type_ = BleUuidType::LONG;
@@ -92,15 +89,13 @@ BleUuid::BleUuid(const uint8_t* uuid128, uint16_t uuid16, BleUuidOrder order) : 
     type_ = BleUuidType::LONG;
     if (uuid128 == nullptr) {
         memset(fullUUID_, 0x00, BLE_SIG_UUID_128BIT_LEN);
-    }
-    else {
+    } else {
         memcpy(fullUUID_, uuid128, BLE_SIG_UUID_128BIT_LEN);
     }
     if (order == BleUuidOrder::LSB) {
         fullUUID_[12] = (uint8_t)(uuid16 & 0x00FF);
         fullUUID_[13] = (uint8_t)((uuid16 >> 8) & 0x00FF);
-    }
-    else {
+    } else {
         fullUUID_[13] = (uint8_t)(uuid16 & 0x00FF);
         fullUUID_[12] = (uint8_t)((uuid16 >> 8) & 0x00FF);
     }
@@ -113,8 +108,7 @@ BleUuid::BleUuid(const String& uuid) : type_(BleUuidType::LONG), order_(BleUuidO
 BleUuid::BleUuid(const char* uuid) : type_(BleUuidType::LONG), order_(BleUuidOrder::LSB), shortUUID_(0x0000) {
     if (uuid == nullptr) {
         memset(fullUUID_, 0x00, BLE_SIG_UUID_128BIT_LEN);
-    }
-    else {
+    } else {
         String str(uuid);
         setUuid(str);
     }
@@ -127,8 +121,7 @@ BleUuid::~BleUuid() {
 bool BleUuid::isValid(void) const {
     if (type_ == BleUuidType::SHORT) {
         return shortUUID_ != 0x0000;
-    }
-    else {
+    } else {
         uint8_t temp[BLE_SIG_UUID_128BIT_LEN];
         memset(temp, 0x00, sizeof(temp));
         return memcmp(fullUUID_, temp, BLE_SIG_UUID_128BIT_LEN);
@@ -139,8 +132,7 @@ bool BleUuid::operator == (const BleUuid& uuid) const {
     if (type_ == uuid.type() && order_ == uuid.order()) {
         if (type_ == BleUuidType::SHORT) {
             return (shortUUID_ == uuid.shorted());
-        }
-        else {
+        } else {
             return !memcmp(full(), uuid.full(), BLE_SIG_UUID_128BIT_LEN);
         }
     }
@@ -184,8 +176,8 @@ void BleUuid::setUuid(const String& str) {
 /*******************************************************
  * BleAdvertisingData class
  */
-BleAdvertisingData::BleAdvertisingData() : selfLen(0) {
-    memset(selfData, 0x00, sizeof(selfData));
+BleAdvertisingData::BleAdvertisingData() : selfLen_(0) {
+    memset(selfData_, 0x00, sizeof(selfData_));
 }
 
 BleAdvertisingData::~BleAdvertisingData() {
@@ -193,43 +185,43 @@ BleAdvertisingData::~BleAdvertisingData() {
 
 size_t BleAdvertisingData::set(const uint8_t* buf, size_t len) {
     if (buf == nullptr) {
-        return selfLen;
+        return selfLen_;
     }
     len = len >= BLE_MAX_ADV_DATA_LEN ? BLE_MAX_ADV_DATA_LEN : len;
-    memcpy(selfData, buf, len);
-    selfLen = len;
-    return selfLen;
+    memcpy(selfData_, buf, len);
+    selfLen_ = len;
+    return selfLen_;
 }
 
 size_t BleAdvertisingData::append(uint8_t type, const uint8_t* buf, size_t len, bool force) {
     if (buf == nullptr) {
-        return selfLen;
+        return selfLen_;
     }
     size_t offset;
-    size_t adsLen = locate(selfData, selfLen, type, &offset);
+    size_t adsLen = locate(selfData_, selfLen_, type, &offset);
     if (!force && adsLen > 0) {
         // Update the existing AD structure.
-        uint16_t staLen = selfLen - adsLen;
+        uint16_t staLen = selfLen_ - adsLen;
         if ((staLen + len + 2) <= BLE_MAX_ADV_DATA_LEN) {
             // Firstly, move the last consistent block.
-            uint16_t moveLen = selfLen - offset - adsLen;
-            memmove(&selfData[offset + len + 2], &selfData[offset + adsLen], moveLen);
+            uint16_t moveLen = selfLen_ - offset - adsLen;
+            memmove(&selfData_[offset + len + 2], &selfData_[offset + adsLen], moveLen);
             // Secondly, Update the AD structure.
             // The Length field is the total length of Type field and Data field.
-            selfData[offset] = len + 1;
-            memcpy(&selfData[offset + 2], buf, len);
+            selfData_[offset] = len + 1;
+            memcpy(&selfData_[offset + 2], buf, len);
             // An AD structure is composed of one byte length field, one byte Type field and Data field.
-            selfLen = staLen + len + 2;
+            selfLen_ = staLen + len + 2;
         }
     }
-    else if ((selfLen + len + 2) <= BLE_MAX_ADV_DATA_LEN) {
+    else if ((selfLen_ + len + 2) <= BLE_MAX_ADV_DATA_LEN) {
         // Append the AD structure at the and of advertising data.
-        selfData[selfLen++] = len + 1;
-        selfData[selfLen++] = type;
-        memcpy(&selfData[selfLen], buf, len);
-        selfLen += len;
+        selfData_[selfLen_++] = len + 1;
+        selfData_[selfLen_++] = type;
+        memcpy(&selfData_[selfLen_], buf, len);
+        selfLen_ += len;
     }
-    return selfLen;
+    return selfLen_;
 }
 
 size_t BleAdvertisingData::appendLocalName(const char* name, bool force) {
@@ -241,17 +233,17 @@ size_t BleAdvertisingData::appendCustomData(const uint8_t* buf, size_t len, bool
 }
 
 void BleAdvertisingData::clear(void) {
-    selfLen = 0;
-    memset(selfData, 0x00, sizeof(selfData));
+    selfLen_ = 0;
+    memset(selfData_, 0x00, sizeof(selfData_));
 }
 
 void BleAdvertisingData::remove(uint8_t type) {
     size_t offset, len;
-    len = locate(selfData, selfLen, type, &offset);
+    len = locate(selfData_, selfLen_, type, &offset);
     if (len > 0) {
-        uint16_t moveLen = selfLen - offset - len;
-        memcpy(&selfData[offset], &selfData[offset + len], moveLen);
-        selfLen -= len;
+        uint16_t moveLen = selfLen_ - offset - len;
+        memcpy(&selfData_[offset], &selfData_[offset + len], moveLen);
+        selfLen_ -= len;
         // Recursively remove duplicated type.
         remove(type);
     }
@@ -259,27 +251,35 @@ void BleAdvertisingData::remove(uint8_t type) {
 
 size_t BleAdvertisingData::get(uint8_t* buf, size_t len) const {
     if (buf != nullptr) {
-        len = len > selfLen ? selfLen : len;
-        memcpy(buf, selfData, len);
+        len = len > selfLen_ ? selfLen_ : len;
+        memcpy(buf, selfData_, len);
         return len;
     }
-    return selfLen;
+    return selfLen_;
 }
 
 size_t BleAdvertisingData::get(uint8_t type, uint8_t* buf, size_t len) const {
     size_t offset;
-    size_t adsLen = locate(selfData, selfLen, type, &offset);
+    size_t adsLen = locate(selfData_, selfLen_, type, &offset);
     if (adsLen > 0) {
         if ((adsLen - 2) > 0) {
             adsLen -= 2;
             len = len > adsLen ? adsLen : len;
             if (buf != nullptr) {
-                memcpy(buf, &selfData[offset + 2], len);
+                memcpy(buf, &selfData_[offset + 2], len);
             }
             return len;
         }
     }
     return 0;
+}
+
+const uint8_t* BleAdvertisingData::data(void) const {
+    return selfData_;
+}
+
+size_t BleAdvertisingData::length(void) const {
+    return selfLen_;
 }
 
 size_t BleAdvertisingData::deviceName(uint8_t* buf, size_t len) const {
@@ -319,21 +319,20 @@ size_t BleAdvertisingData::customData(uint8_t* buf, size_t len) const {
 
 bool BleAdvertisingData::contains (uint8_t type) const {
     size_t adsOffset;
-    return locate(selfData, selfLen, type, &adsOffset) > 0;
+    return locate(selfData_, selfLen_, type, &adsOffset) > 0;
 }
 
 size_t BleAdvertisingData::serviceUUID(uint8_t type, BleUuid* uuids, size_t count) const {
     size_t offset, adsLen = 0, found = 0;
-    for (size_t i = 0; i < selfLen; i += (offset + adsLen)) {
-        adsLen = locate(&selfData[i], selfLen - i, type, &offset);
+    for (size_t i = 0; i < selfLen_; i += (offset + adsLen)) {
+        adsLen = locate(&selfData_[i], selfLen_ - i, type, &offset);
         if (adsLen > 0) {
             if (adsLen == 4) { // length field + type field + 16-bits UUID
                 if (found < count) {
-                    uint16_t temp = (uint16_t)selfData[i + offset + 2] | ((uint16_t)selfData[i + offset + 3] << 8);
+                    uint16_t temp = (uint16_t)selfData_[i + offset + 2] | ((uint16_t)selfData_[i + offset + 3] << 8);
                     BleUuid uuid(temp);
                     uuids[found++] = uuid;
-                }
-                else {
+                } else {
                     return found;
                 }
             }
@@ -358,12 +357,10 @@ size_t BleAdvertisingData::locate(const uint8_t* buf, size_t len, uint8_t type, 
                 *offset = i;
                 adsLen += 1;
                 return adsLen;
-            }
-            else {
+            } else {
                 return 0;
             }
-        }
-        else {
+        } else {
             // Navigate to the next AD structure.
             i += (adsLen + 1);
         }
@@ -408,8 +405,6 @@ public:
     bool isLocal;
     BleCharHandles attrHandles;
     OnDataReceivedCallback dataCb;
-    Vector<BleConnHandle> cccdOfServer; // For local characteristic
-    bool cccdOfClient; // For peer characteristic
     BleConnHandle connHandle; // For peer characteristic
     BleServiceImpl* svcImpl; // Related service
     Vector<BleCharacteristicRef> references;
@@ -441,7 +436,6 @@ public:
         properties = PROPERTY::NONE;
         description = nullptr;
         isLocal = true;
-        cccdOfClient = false;
         connHandle = BLE_INVALID_CONN_HANDLE;
         svcImpl = nullptr;
         dataCb = nullptr;
@@ -451,16 +445,15 @@ public:
         if (buf == nullptr) {
             return 0;
         }
-        uint16_t readLen = len > BLE_MAX_ATTR_VALUE_PACKET_SIZE ? BLE_MAX_ATTR_VALUE_PACKET_SIZE : len;
+        len = len > BLE_MAX_ATTR_VALUE_PACKET_SIZE ? BLE_MAX_ATTR_VALUE_PACKET_SIZE : len;
         int ret;
         if (isLocal) {
-            ret = ble_gatt_server_get_characteristic_value(attrHandles.value_handle, buf, &readLen, nullptr);
-        }
-        else {
-            ret = ble_gatt_client_read(connHandle, attrHandles.value_handle, buf, &readLen, nullptr);
+            ret = ble_gatt_server_get_characteristic_value(attrHandles.value_handle, buf, len, nullptr);
+        } else {
+            ret = ble_gatt_client_read(connHandle, attrHandles.value_handle, buf, len, nullptr);
         }
         if (ret == SYSTEM_ERROR_NONE) {
-            return readLen;
+            return len;
         }
         return 0;
     }
@@ -476,22 +469,10 @@ public:
             if (ret == 0) {
                 LOG(ERROR, "ble_gatt_server_set_characteristic_value failed.");
             }
-            else {
-                for (int i = 0; i < cccdOfServer.size(); i++) {
-                    if (properties & PROPERTY::NOTIFY) {
-                        ble_gatt_server_notify_characteristic_value(cccdOfServer[i], attrHandles.value_handle, buf, len, nullptr);
-                    }
-                    else if (properties & PROPERTY::INDICATE) {
-                        ble_gatt_server_indicate_characteristic_value(cccdOfServer[i], attrHandles.value_handle, buf, len, nullptr);
-                    }
-                }
-            }
-        }
-        else {
+        } else {
             if (properties & PROPERTY::WRITE) {
                 ret = ble_gatt_client_write_with_response(connHandle, attrHandles.value_handle, buf, len, nullptr);
-            }
-            else if (properties & PROPERTY::WRITE_WO_RSP) {
+            } else if (properties & PROPERTY::WRITE_WO_RSP) {
                 ret = ble_gatt_client_write_without_response(connHandle, attrHandles.value_handle, buf, len, nullptr);
             }
         }
@@ -499,16 +480,7 @@ public:
     }
 
     void configureCccd(BleConnHandle handle, uint8_t enable) {
-        if (isLocal) {
-            if (enable) {
-                cccdOfServer.append(handle);
-            }
-            else {
-                cccdOfServer.removeOne(handle);
-            }
-            LOG_DEBUG(TRACE, "CCCD configured count: %d", cccdOfServer.size());
-        }
-        else {
+        if (!isLocal) {
             // Gatt Client configure peer CCCD.
         }
     }
@@ -571,12 +543,6 @@ public:
     void processReceivedData(BleAttrHandle attrHandle, const uint8_t* data, size_t len, const BlePeerDevice& peer) {
         if (data == nullptr) {
             return;
-        }
-        if (isLocal) {
-            if (attrHandle == attrHandles.cccd_handle) {
-                LOG_DEBUG(TRACE, "Configure CCCD: 0x%02x%02x", data[0],data[1]);
-                configureCccd(peer.connHandle, data[0]);
-            }
         }
         if (attrHandle == attrHandles.value_handle) {
             if (dataCb != nullptr) {
@@ -643,8 +609,7 @@ BleCharacteristic& BleCharacteristic::operator=(const BleCharacteristic& charact
                 }
             }
             LOG_DEBUG(TRACE, "shared_ptr pre-count2: %d", impl_.use_count());
-        }
-        else {
+        } else {
             impl()->removeReference(this);
         }
     }
@@ -673,8 +638,7 @@ BleCharacteristic::~BleCharacteristic() {
                 }
             }
             LOG_DEBUG(TRACE, "shared_ptr count2: %d", impl_.use_count());
-        }
-        else {
+        } else {
             LOG_DEBUG(TRACE, "shared_ptr count1: %d", impl_.use_count());
             impl()->removeReference(this);
         }
@@ -820,21 +784,16 @@ public:
             return SYSTEM_ERROR_INVALID_ARGUMENT;
         }
         if (characteristic.impl()->isLocal) {
-            if (ble_stack_is_initialized()) {
-                characteristic.impl()->assignUuidIfNeeded();
-                hal_ble_char_init_t char_init;
-                memset(&char_init, 0x00, sizeof(hal_ble_char_init_t));
-                convertToHalUuid(characteristic.impl()->uuid, &char_init.uuid);
-                char_init.properties = static_cast<uint8_t>(characteristic.impl()->properties);
-                char_init.service_handle = startHandle;
-                char_init.description = characteristic.impl()->description;
-                int ret = ble_gatt_server_add_characteristic(&char_init, &characteristic.impl()->attrHandles, NULL);
-                if (ret != SYSTEM_ERROR_NONE) {
-                    return ret;
-                }
-            }
-            else {
-                return SYSTEM_ERROR_INVALID_STATE;
+            characteristic.impl()->assignUuidIfNeeded();
+            hal_ble_char_init_t char_init;
+            memset(&char_init, 0x00, sizeof(hal_ble_char_init_t));
+            convertToHalUuid(characteristic.impl()->uuid, &char_init.uuid);
+            char_init.properties = static_cast<uint8_t>(characteristic.impl()->properties);
+            char_init.service_handle = startHandle;
+            char_init.description = characteristic.impl()->description;
+            int ret = ble_gatt_server_add_characteristic(&char_init, &characteristic.impl()->attrHandles, NULL);
+            if (ret != SYSTEM_ERROR_NONE) {
+                return ret;
             }
         }
         characteristic.impl()->svcImpl = this;
@@ -904,16 +863,11 @@ public:
             return SYSTEM_ERROR_INVALID_ARGUMENT;
         }
         if (isLocal()) {
-            if (ble_stack_is_initialized()) {
-                hal_ble_uuid_t halUuid;
-                convertToHalUuid(svc.impl()->uuid, &halUuid);
-                int ret = ble_gatt_server_add_service(BLE_SERVICE_TYPE_PRIMARY, &halUuid, &svc.impl()->startHandle, NULL);
-                if (ret != SYSTEM_ERROR_NONE) {
-                    return ret;
-                }
-            }
-            else {
-                return SYSTEM_ERROR_INVALID_STATE;
+            hal_ble_uuid_t halUuid;
+            convertToHalUuid(svc.impl()->uuid, &halUuid);
+            int ret = ble_gatt_server_add_service(BLE_SERVICE_TYPE_PRIMARY, &halUuid, &svc.impl()->startHandle, NULL);
+            if (ret != SYSTEM_ERROR_NONE) {
+                return ret;
             }
         }
         LOG_DEBUG(TRACE, "services.append(service)");
@@ -939,8 +893,7 @@ public:
                 return stubSvc->impl()->addCharacteristic(characteristic);
             }
             return SYSTEM_ERROR_INTERNAL;
-        }
-        else {
+        } else {
             BleService service(characteristic.impl()->svcUuid);
             if (addService(service) == SYSTEM_ERROR_NONE) {
                 return services.last().impl()->addCharacteristic(characteristic);
@@ -962,13 +915,6 @@ public:
     }
 
     void gattsProcessDisconnected(const BlePeerDevice& peer) {
-        for (size_t i = 0; i < serviceCount(); i++) {
-            BleService& service = services[i];
-            for (size_t j = 0; j < service.impl()->characteristicCount(); j++) {
-                BleCharacteristic& characteristic = service.impl()->characteristics[j];
-                characteristic.impl()->configureCccd(peer.connHandle, false);
-            }
-        }
     }
 
     void gattsProcessDataWritten(BleAttrHandle attrHandle, const uint8_t* buf, size_t len, BlePeerDevice& peer) {
@@ -1004,70 +950,58 @@ public:
  */
 class BleBroadcasterImpl {
 public:
-    BleAdvParams advParams;
-    BleAdvertisingData advertisingData;
-    BleAdvertisingData scanResponse;
-
-    BleBroadcasterImpl() {
-        // AD flags
-        uint8_t flags = BLE_SIG_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-        advertisingData.append(BLE_SIG_AD_TYPE_FLAGS, &flags, 1);
-
-        // Complete local name
-        char devName[32];
-        uint16_t nameLen = sizeof(devName);
-        ble_gap_get_device_name((uint8_t*)devName, &nameLen);
-        devName[nameLen++] = '\0';
-        advertisingData.appendLocalName(devName);
-
-        // Particle specific Manufacture data
-        uint8_t mfgData[BLE_MAX_ADV_DATA_LEN];
-        size_t mfgDataLen = 0;
-        uint16_t platformID = PLATFORM_ID;
-        memcpy(&mfgData[mfgDataLen], (uint8_t*)&PARTICLE_COMPANY_ID, sizeof(PARTICLE_COMPANY_ID));
-        mfgDataLen += sizeof(PARTICLE_COMPANY_ID);
-        memcpy(&mfgData[mfgDataLen], (uint8_t*)&platformID, sizeof(platformID));
-        mfgDataLen += sizeof(platformID);
-        advertisingData.appendCustomData(mfgData, mfgDataLen);
-
-        // Particle Control Request Service 128-bits UUID
-        BleUuid svcUUID(BLE_CTRL_REQ_SVC_UUID);
-        scanResponse.appendServiceUUID(svcUUID);
-
-        // TODO: Appedn the Particle vendor ID in scan response data
-
-        // Default advertising parameters
-        advParams.type          = BLE_ADV_CONNECTABLE_SCANNABLE_UNDIRECRED_EVT;
-        advParams.filter_policy = BLE_ADV_FP_ANY;
-        advParams.interval      = BLE_DEFAULT_ADVERTISING_INTERVAL;
-        advParams.timeout       = BLE_DEFAULT_ADVERTISING_TIMEOUT;
-        advParams.inc_tx_power  = false;
-    }
-
-    ~BleBroadcasterImpl() {
-    }
+    BleBroadcasterImpl() {}
+    ~BleBroadcasterImpl() {}
 
     int setTxPower(int8_t val) const {
         return ble_gap_set_tx_power(val);
     }
 
     int8_t txPower(void) const {
-        int8_t txPower;
-        if (ble_gap_get_tx_power(&txPower) == SYSTEM_ERROR_NONE) {
-            return txPower;
-        }
-        else {
-            return 0x7F;
-        }
+        return ble_gap_get_tx_power();
     }
 
-    void setIbeacon(const iBeacon& iBeacon) {
+    int setAdvertisingInterval(uint16_t interval) {
+        hal_ble_adv_params_t advParams;
+        int ret = ble_gap_get_advertising_parameters(&advParams, nullptr);
+        if (ret == SYSTEM_ERROR_NONE) {
+            advParams.interval = interval;
+            ret = ble_gap_set_advertising_parameters(&advParams, nullptr);
+        }
+        return ret;
+    }
+
+    int setAdvertisingTimeout(uint16_t timeout) {
+        hal_ble_adv_params_t advParams;
+        int ret = ble_gap_get_advertising_parameters(&advParams, nullptr);
+        if (ret == SYSTEM_ERROR_NONE) {
+            advParams.timeout = timeout;
+            ret = ble_gap_set_advertising_parameters(&advParams, nullptr);
+        }
+        return ret;
+    }
+
+    int setAdvertisingType(uint8_t type) {
+        hal_ble_adv_params_t advParams;
+        int ret = ble_gap_get_advertising_parameters(&advParams, nullptr);
+        if (ret == SYSTEM_ERROR_NONE) {
+            advParams.type = type;
+            ret = ble_gap_set_advertising_parameters(&advParams, nullptr);
+        }
+        return ret;
+    }
+
+    int setAdvertisingParams(const BleAdvParams* params) {
+        return ble_gap_set_advertising_parameters(params, nullptr);
+    }
+
+    int setIbeacon(const iBeacon& iBeacon) {
         if (iBeacon.uuid.type() == BleUuidType::SHORT) {
-            return;
+            return SYSTEM_ERROR_INVALID_ARGUMENT;
         }
 
+        BleAdvertisingData advertisingData;
         advertisingData.clear();
-        scanResponse.clear();
 
         // AD flags
         uint8_t flags = BLE_SIG_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
@@ -1086,8 +1020,7 @@ public:
         // 128-bits Beacon UUID, MSB
         if (iBeacon.uuid.order() == BleUuidOrder::MSB) {
             memcpy(&mfgData[mfgDataLen], iBeacon.uuid.full(), BLE_SIG_UUID_128BIT_LEN);
-        }
-        else {
+        } else {
             for (size_t i = 0, j = BLE_SIG_UUID_128BIT_LEN - 1; i < BLE_SIG_UUID_128BIT_LEN; i++, j--) {
                 mfgData[mfgDataLen + i] = iBeacon.uuid.full()[j];
             }
@@ -1102,71 +1035,67 @@ public:
         // Measure power
         mfgData[mfgDataLen++] = iBeacon.measurePower;
         advertisingData.appendCustomData(mfgData, mfgDataLen);
+
+        int ret = ble_gap_set_advertising_data(advertisingData.data(), advertisingData.length(), nullptr);
+        if (ret == SYSTEM_ERROR_NONE) {
+            // Clear the scan response data.
+            ret = ble_gap_set_scan_response_data(nullptr, 0, nullptr);
+        }
+        return ret;
     }
 
-    void setAdvertisingData(const BleAdvertisingData* data) {
-        if (data == nullptr) {
-            uint8_t flags;
-            advertisingData.get(BLE_SIG_AD_TYPE_FLAGS, &flags, sizeof(flags));
-            advertisingData.clear();
-            advertisingData.append(BLE_SIG_AD_TYPE_FLAGS, &flags, sizeof(flags));
-        }
-        else {
-            if (data->contains(BLE_SIG_AD_TYPE_FLAGS)) {
-                advertisingData = *data;
-            }
-            else {
+    int setAdvertisingData(const BleAdvertisingData* advData) {
+        int ret;
+        if (advData == nullptr) {
+            ret = ble_gap_set_advertising_data(nullptr, 0, nullptr);
+        } else {
+            if (advData->contains(BLE_SIG_AD_TYPE_FLAGS)) {
+                ret = ble_gap_set_advertising_data(advData->data(), advData->length(), nullptr);
+            } else {
                 uint8_t temp[BLE_MAX_ADV_DATA_LEN];
-                advertisingData.get(temp, sizeof(temp));
-                size_t len = data->get(&temp[3], sizeof(temp) - 3);
-                advertisingData.set(temp, len + 3);
+                ble_gap_get_advertising_data(temp, sizeof(temp), nullptr);
+                // Keep the previous AD Flags
+                size_t len = advData->get(&temp[3], sizeof(temp) - 3);
+                ret = ble_gap_set_advertising_data(temp, len + 3, nullptr);
             }
         }
+        if (ret != SYSTEM_ERROR_NONE) {
+            LOG_DEBUG(TRACE, "ble_gap_set_advertising_data failed: %d", ret);
+        }
+        return ret;
     }
 
-    void setScanResponseData(const BleAdvertisingData* data) {
-        if (data == nullptr) {
-            scanResponse.clear();
+    int setScanResponseData(const BleAdvertisingData* srData) {
+        int ret;
+        if (srData == nullptr) {
+            ret = ble_gap_set_scan_response_data(nullptr, 0, nullptr);
             // TODO: keep the Particle vendor ID
+        } else {
+            BleAdvertisingData scanRespData = *srData;
+            scanRespData.remove(BLE_SIG_AD_TYPE_FLAGS);
+            ret = ble_gap_set_scan_response_data(scanRespData.data(), scanRespData.length(), nullptr);
         }
-        else {
-            scanResponse = *data;
-            scanResponse.remove(BLE_SIG_AD_TYPE_FLAGS);
+        if (ret != SYSTEM_ERROR_NONE) {
+            LOG_DEBUG(TRACE, "ble_gap_set_scan_response_data failed: %d", ret);
         }
+        return ret;
     }
 
     int advertise(void) {
-        int ret = ble_gap_set_advertising_parameters(&advParams, NULL);
-        if (ret != SYSTEM_ERROR_NONE) {
-            return ret;
-        }
-
-        uint8_t buf[BLE_MAX_ADV_DATA_LEN];
-        size_t len = advertisingData.get(buf, sizeof(buf));
-        ret = ble_gap_set_advertising_data(buf, len, nullptr);
-        if (ret != SYSTEM_ERROR_NONE) {
-            LOG_DEBUG(TRACE, "ble_gap_set_advertising_data failed: %d", ret);
-            return ret;
-        }
-
-        len = scanResponse.get(buf, sizeof(buf));
-        ret = ble_gap_set_scan_response_data(buf, len, nullptr);
-        if (ret != SYSTEM_ERROR_NONE) {
-            LOG_DEBUG(TRACE, "ble_gap_set_scan_response_data failed: %d", ret);
-            return ret;
-        }
-
         return ble_gap_start_advertising(NULL);
     }
 
     int advertise(bool connectable) {
+        int ret;
         if (connectable) {
-            advParams.type = BLE_ADV_CONNECTABLE_SCANNABLE_UNDIRECRED_EVT;
+            ret = setAdvertisingType(BLE_ADV_CONNECTABLE_SCANNABLE_UNDIRECRED_EVT);
+        } else {
+            ret = setAdvertisingType(BLE_ADV_SCANABLE_UNDIRECTED_EVT);
         }
-        else {
-            advParams.type = BLE_ADV_SCANABLE_UNDIRECTED_EVT;
+        if (ret == SYSTEM_ERROR_NONE) {
+            ret = advertise();
         }
-        return advertise();
+        return ret;
     }
 
     int stopAdvertising(void) const {
@@ -1184,91 +1113,76 @@ public:
  */
 class BleObserverImpl {
 public:
-    BleScanParams scanParams;
     size_t targetCount;
     OnScanResultCallback callback;
     BleScanResult* results;
     size_t count;
 
-    BleObserverImpl() : targetCount(0), callback(nullptr), results(nullptr), count(0) {
-        scanParams.active = true;
-        scanParams.filter_policy = BLE_SCAN_FP_ACCEPT_ALL;
-        scanParams.interval = BLE_DEFAULT_SCANNING_INTERVAL;
-        scanParams.window = BLE_DEFAULT_SCANNING_WINDOW;
-        scanParams.timeout = BLE_DEFAULT_SCANNING_TIMEOUT;
-    }
-
-    ~BleObserverImpl() {
-
-    }
+    BleObserverImpl() : targetCount(0), callback(nullptr), results(nullptr), count(0) {}
+    ~BleObserverImpl() {}
 
     int scan(OnScanResultCallback callback) {
         this->callback = callback;
         count = 0;
-        ble_gap_set_scan_parameters(&scanParams, NULL);
-        ble_gap_start_scan(nullptr);
+        ble_gap_start_scan(observerProcessScanResult, this, nullptr);
         return count;
     }
 
     int scan(OnScanResultCallback callback, uint16_t timeout) {
-        this->callback = callback;
-        scanParams.timeout  = timeout;
-        count = 0;
-        ble_gap_set_scan_parameters(&scanParams, NULL);
-        ble_gap_start_scan(nullptr);
-        return count;
+        hal_ble_scan_params_t params;
+        ble_gap_get_scan_parameters(&params, nullptr);
+        params.timeout = timeout;
+        ble_gap_set_scan_parameters(&params, NULL);
+        return scan(callback);
     }
 
     int scan(BleScanResult* results, size_t resultCount) {
-        return scan(results, resultCount, scanParams);
+        this->results = results;
+        targetCount = resultCount;
+        count = 0;
+        ble_gap_start_scan(observerProcessScanResult, this, nullptr);
+        return count;
     }
 
     int scan(BleScanResult* results, size_t resultCount, uint16_t timeout) {
-        scanParams.timeout  = timeout;
-        return scan(results, resultCount, scanParams);
+        hal_ble_scan_params_t params;
+        ble_gap_get_scan_parameters(&params, nullptr);
+        params.timeout = timeout;
+        ble_gap_set_scan_parameters(&params, NULL);
+        return scan(results, resultCount);
     }
 
     int scan(BleScanResult* results, size_t resultCount, const BleScanParams& params) {
-        this->results = results;
-        targetCount = resultCount;
-        scanParams = params;
-        count = 0;
-        ble_gap_set_scan_parameters(&scanParams, NULL);
-        ble_gap_start_scan(nullptr);
-        return count;
+        ble_gap_set_scan_parameters(&params, NULL);
+        return scan(results, resultCount);
     }
 
     int stopScanning(void) {
         return ble_gap_stop_scan();
     }
 
-    void observerProcessScanResult(const hal_ble_gap_on_scan_result_evt_t* event) {
+    static void observerProcessScanResult(const hal_ble_gap_on_scan_result_evt_t* event, void* context) {
+        BleObserverImpl* impl = static_cast<BleObserverImpl*>(context);
         BleScanResult result;
         result.address = event->peer_addr;
         result.rssi = event->rssi;
 
         if (event->type.scan_response) {
             result.scanResponse.set(event->data, event->data_len);
-        }
-        else {
+        } else {
             result.advertisingData.set(event->data, event->data_len);
         }
 
-        if (callback != nullptr) {
-            callback(&result);
-        }
-        else if (results != nullptr) {
-            if (count < targetCount) {
-                results[count++] = result;
-                if (count >= targetCount) {
-                    stopScanning();
+        if (impl->callback != nullptr) {
+            impl->callback(&result);
+        } else if (impl->results != nullptr) {
+            if (impl->count < impl->targetCount) {
+                impl->results[impl->count++] = result;
+                if (impl->count >= impl->targetCount) {
+                    impl->stopScanning();
                 }
             }
         }
-    }
-
-    void observerProcessScanStopped(const hal_ble_gap_on_scan_stopped_evt_t* event) {
-        return;
     }
 };
 
@@ -1281,30 +1195,20 @@ public:
     BleConnParams ppcp;
     Vector<BlePeerDevice> centrals;
 
-    BlePeripheralImpl() {
-        ppcp.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
-        ppcp.max_conn_interval = BLE_DEFAULT_MAX_CONN_INTERVAL;
-        ppcp.slave_latency     = BLE_DEFAULT_SLAVE_LATENCY;
-        ppcp.conn_sup_timeout  = BLE_DEFAULT_CONN_SUP_TIMEOUT;
-    }
-
-    ~BlePeripheralImpl() {
-    }
+    BlePeripheralImpl() {}
+    ~BlePeripheralImpl() {}
 
     size_t centralCount(void) const {
         return centrals.size();
     }
 
-    int setPPCP(void) {
-        return ble_gap_set_ppcp(&ppcp, NULL);
-    }
-
     int setPPCP(uint16_t minInterval, uint16_t maxInterval, uint16_t latency, uint16_t timeout) {
+        hal_ble_conn_params_t ppcp;
         ppcp.min_conn_interval = minInterval;
         ppcp.max_conn_interval = maxInterval;
         ppcp.slave_latency = latency;
         ppcp.conn_sup_timeout = timeout;
-        return setPPCP();
+        return ble_gap_set_ppcp(&ppcp, nullptr);
     }
 
     int disconnect(void) {
@@ -1337,29 +1241,30 @@ public:
  */
 class BleCentralImpl {
 public:
-    BleConnParams connParams;
     Vector<BlePeerDevice> peripherals;
 
-    BleCentralImpl() {
-        connParams.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
-        connParams.max_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
-        connParams.slave_latency     = BLE_DEFAULT_SLAVE_LATENCY;
-        connParams.conn_sup_timeout  = BLE_DEFAULT_CONN_SUP_TIMEOUT;
-    }
-
-    ~BleCentralImpl() {
-    }
+    BleCentralImpl() {}
+    ~BleCentralImpl() {}
 
     size_t peripheralCount(void) const {
         return peripherals.size();
     }
 
     BlePeerDevice connect(const BleAddress& addr, uint16_t interval, uint16_t latency, uint16_t timeout) {
+        hal_ble_conn_params_t connParams;
         connParams.min_conn_interval = interval;
         connParams.max_conn_interval = interval;
         connParams.slave_latency = latency;
         connParams.conn_sup_timeout = timeout;
-        ble_gap_connect(&addr, &connParams, nullptr);
+        ble_gap_set_ppcp(&connParams, nullptr);
+        ble_gap_connect(&addr, nullptr);
+
+        BlePeerDevice peer;
+        return peer;
+    }
+
+    BlePeerDevice connect(const BleAddress& addr) {
+        ble_gap_connect(&addr, nullptr);
 
         BlePeerDevice peer;
         return peer;
@@ -1443,10 +1348,7 @@ bool BlePeerDevice::operator == (const BlePeerDevice& device) {
 BleLocalDevice::BleLocalDevice()
     : connectedCb_(nullptr),
       disconnectedCb_(nullptr) {
-    if (!ble_stack_is_initialized()) {
-        ble_stack_init(NULL);
-    }
-
+    ble_stack_init(NULL);
     ble_gap_get_device_address(&address);
 
     gattsProxy_ = std::make_shared<BleGattServerImpl>(address);
@@ -1455,8 +1357,6 @@ BleLocalDevice::BleLocalDevice()
     observerProxy_ = std::make_shared<BleObserverImpl>();
     peripheralProxy_ = std::make_shared<BlePeripheralImpl>();
     centralProxy_ = std::make_shared<BleCentralImpl>();
-
-    setPPCP();
 
     ble_set_callback_on_events(onBleEvents, this);
 }
@@ -1503,41 +1403,41 @@ int BleLocalDevice::advertise(BleAdvertisingData* advertisingData, BleAdvertisin
     return broadcasterProxy_->advertise();
 }
 
-int BleLocalDevice::advertise(uint32_t interval) {
-    broadcasterProxy_->advParams.interval = interval;
+int BleLocalDevice::advertise(uint16_t interval) {
+    broadcasterProxy_->setAdvertisingInterval(interval);
     return broadcasterProxy_->advertise();
 }
 
-int BleLocalDevice::advertise(uint32_t interval, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse) {
+int BleLocalDevice::advertise(uint16_t interval, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse) {
     broadcasterProxy_->setAdvertisingData(advertisingData);
     broadcasterProxy_->setScanResponseData(scanResponse);
-    broadcasterProxy_->advParams.interval = interval;
+    broadcasterProxy_->setAdvertisingInterval(interval);
     return broadcasterProxy_->advertise();
 }
 
-int BleLocalDevice::advertise(uint32_t interval, uint32_t timeout) {
-    broadcasterProxy_->advParams.interval = interval;
-    broadcasterProxy_->advParams.timeout = timeout;
+int BleLocalDevice::advertise(uint16_t interval, uint16_t timeout) {
+    broadcasterProxy_->setAdvertisingInterval(interval);
+    broadcasterProxy_->setAdvertisingTimeout(timeout);
     return broadcasterProxy_->advertise();
 }
 
-int BleLocalDevice::advertise(uint32_t interval, uint32_t timeout, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse) {
+int BleLocalDevice::advertise(uint16_t interval, uint16_t timeout, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse) {
     broadcasterProxy_->setAdvertisingData(advertisingData);
     broadcasterProxy_->setScanResponseData(scanResponse);
-    broadcasterProxy_->advParams.interval = interval;
-    broadcasterProxy_->advParams.timeout = timeout;
+    broadcasterProxy_->setAdvertisingInterval(interval);
+    broadcasterProxy_->setAdvertisingTimeout(timeout);
     return broadcasterProxy_->advertise();
 }
 
 int BleLocalDevice::advertise(const BleAdvParams& params) {
-    broadcasterProxy_->advParams = params;
+    broadcasterProxy_->setAdvertisingParams(&params);
     return broadcasterProxy_->advertise();
 }
 
 int BleLocalDevice::advertise(const BleAdvParams& params, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse) {
     broadcasterProxy_->setAdvertisingData(advertisingData);
     broadcasterProxy_->setScanResponseData(scanResponse);
-    broadcasterProxy_->advParams = params;
+    broadcasterProxy_->setAdvertisingParams(&params);
     return broadcasterProxy_->advertise();
 }
 
@@ -1546,22 +1446,22 @@ int BleLocalDevice::advertise(const iBeacon& iBeacon, bool connectable) {
     return broadcasterProxy_->advertise(connectable);
 }
 
-int BleLocalDevice::advertise(uint32_t interval, const iBeacon& iBeacon, bool connectable) {
+int BleLocalDevice::advertise(uint16_t interval, const iBeacon& iBeacon, bool connectable) {
     broadcasterProxy_->setIbeacon(iBeacon);
-    broadcasterProxy_->advParams.interval = interval;
+    broadcasterProxy_->setAdvertisingInterval(interval);
     return broadcasterProxy_->advertise(connectable);
 }
 
-int BleLocalDevice::advertise(uint32_t interval, uint32_t timeout, const iBeacon& iBeacon, bool connectable) {
+int BleLocalDevice::advertise(uint16_t interval, uint16_t timeout, const iBeacon& iBeacon, bool connectable) {
     broadcasterProxy_->setIbeacon(iBeacon);
-    broadcasterProxy_->advParams.interval = interval;
-    broadcasterProxy_->advParams.timeout = timeout;
+    broadcasterProxy_->setAdvertisingInterval(interval);
+    broadcasterProxy_->setAdvertisingTimeout(timeout);
     return broadcasterProxy_->advertise(connectable);
 }
 
 int BleLocalDevice::advertise(const BleAdvParams& params, const iBeacon& iBeacon, bool connectable) {
     broadcasterProxy_->setIbeacon(iBeacon);
-    broadcasterProxy_->advParams = params;
+    broadcasterProxy_->setAdvertisingParams(&params);
     return broadcasterProxy_->advertise(connectable);
 }
 
@@ -1593,10 +1493,6 @@ int BleLocalDevice::stopScanning(void) {
     return observerProxy_->stopScanning();
 }
 
-int BleLocalDevice::setPPCP(void) {
-    return peripheralProxy_->setPPCP();
-}
-
 int BleLocalDevice::setPPCP(uint16_t minInterval, uint16_t maxInterval, uint16_t latency, uint16_t timeout) {
     return peripheralProxy_->setPPCP(minInterval, maxInterval, latency, timeout);
 }
@@ -1611,6 +1507,10 @@ bool BleLocalDevice::connected(void) const {
 
 BlePeerDevice BleLocalDevice::connect(const BleAddress& addr, uint16_t interval, uint16_t latency, uint16_t timeout) {
     return centralProxy_->connect(addr, interval, latency, timeout);
+}
+
+BlePeerDevice BleLocalDevice::connect(const BleAddress& addr) {
+    return centralProxy_->connect(addr);
 }
 
 int BleLocalDevice::disconnect(const BlePeerDevice& peripheral) {
@@ -1646,7 +1546,7 @@ BlePeerDevice* BleLocalDevice::findPeerDevice(BleConnHandle connHandle) {
     return nullptr;
 }
 
-void BleLocalDevice::onBleEvents(hal_ble_evts_t *event, void* context) {
+void BleLocalDevice::onBleEvents(const hal_ble_evts_t *event, void* context) {
     if (context == nullptr) {
         return;
     }
@@ -1656,14 +1556,6 @@ void BleLocalDevice::onBleEvents(hal_ble_evts_t *event, void* context) {
     switch (event->type) {
         case BLE_EVT_ADV_STOPPED: {
             bleInstance->broadcasterProxy_->broadcasterProcessStopped();
-        } break;
-
-        case BLE_EVT_SCAN_RESULT: {
-            bleInstance->observerProxy_->observerProcessScanResult(&event->params.scan_result);
-        } break;
-
-        case BLE_EVT_SCAN_STOPPED: {
-            bleInstance->observerProxy_->observerProcessScanStopped(&event->params.scan_stopped);
         } break;
 
         case BLE_EVT_CONNECTED: {
@@ -1676,11 +1568,13 @@ void BleLocalDevice::onBleEvents(hal_ble_evts_t *event, void* context) {
             peer.connHandle = event->params.connected.conn_handle;
             peer.address = event->params.connected.peer_addr;
 
+            if (bleInstance->connectedCb_) {
+                bleInstance->connectedCb_(peer);
+            }
             if (event->params.connected.role == BLE_ROLE_PERIPHERAL) {
                 peer.role = ROLE::CENTRAL;
                 bleInstance->peripheralProxy_->peripheralProcessConnected(peer);
-            }
-            else {
+            } else {
                 peer.role = ROLE::PERIPHERAL;
                 bleInstance->centralProxy_->centralProcessConnected(peer);
             }
@@ -1691,10 +1585,12 @@ void BleLocalDevice::onBleEvents(hal_ble_evts_t *event, void* context) {
             if (peer != nullptr) {
                 bleInstance->gattsProxy_->gattsProcessDisconnected(*peer);
 
+                if (bleInstance->disconnectedCb_) {
+                    bleInstance->disconnectedCb_(*peer);
+                }
                 if (peer->role & ROLE::PERIPHERAL) {
                     bleInstance->centralProxy_->centralProcessDisconnected(*peer);
-                }
-                else {
+                } else {
                     bleInstance->peripheralProxy_->peripheralProcessDisconnected(*peer);
                 }
             }

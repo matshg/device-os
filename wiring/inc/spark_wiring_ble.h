@@ -92,8 +92,8 @@ typedef uint16_t BleAttrHandle;
 
 typedef void (*OnDataReceivedCallback)(const uint8_t* data, size_t len);
 typedef void (*OnScanResultCallback)(const BleScanResult *device);
-typedef void (*OnConnectedCallback)(BlePeerDevice &peer);
-typedef void (*OnDisconnectedCallback)(BlePeerDevice &peer);
+typedef void (*OnConnectedCallback)(const BlePeerDevice &peer);
+typedef void (*OnDisconnectedCallback)(const BlePeerDevice &peer);
 
 class BleAddress : public hal_ble_addr_t {
 public:
@@ -230,6 +230,9 @@ public:
     size_t get(uint8_t* buf, size_t len) const;
     size_t get(uint8_t type, uint8_t* buf, size_t len) const;
 
+    const uint8_t* data(void) const;
+    size_t length(void) const;
+
     String deviceName(void) const;
     size_t deviceName(uint8_t* buf, size_t len) const;
     size_t serviceUUID(BleUuid* uuids, size_t count) const;
@@ -242,8 +245,8 @@ public:
     bool contains (uint8_t type) const;
 
 private:
-    uint8_t selfData[BLE_MAX_ADV_DATA_LEN];
-    size_t selfLen;
+    uint8_t selfData_[BLE_MAX_ADV_DATA_LEN];
+    size_t selfLen_;
 
     size_t serviceUUID(uint8_t type, BleUuid* uuids, size_t count) const;
     static size_t locate(const uint8_t* buf, size_t len, uint8_t type, size_t* offset);
@@ -373,16 +376,16 @@ public:
 
     int advertise(void);
     int advertise(BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse = nullptr);
-    int advertise(uint32_t interval);
-    int advertise(uint32_t interval, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse = nullptr);
-    int advertise(uint32_t interval, uint32_t timeout);
-    int advertise(uint32_t interval, uint32_t timeout, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse = nullptr);
+    int advertise(uint16_t interval);
+    int advertise(uint16_t interval, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse = nullptr);
+    int advertise(uint16_t interval, uint16_t timeout);
+    int advertise(uint16_t interval, uint16_t timeout, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse = nullptr);
     int advertise(const BleAdvParams& params);
     int advertise(const BleAdvParams& params, BleAdvertisingData* advertisingData, BleAdvertisingData* scanResponse = nullptr);
 
     int advertise(const iBeacon& iBeacon, bool connectable = false);
-    int advertise(uint32_t interval, const iBeacon& iBeacon, bool connectable = false);
-    int advertise(uint32_t interval, uint32_t timeout, const iBeacon& iBeacon, bool connectable = false);
+    int advertise(uint16_t interval, const iBeacon& iBeacon, bool connectable = false);
+    int advertise(uint16_t interval, uint16_t timeout, const iBeacon& iBeacon, bool connectable = false);
     int advertise(const BleAdvParams& params, const iBeacon& iBeacon, bool connectable = false);
 
     int stopAdvertising(void) const;
@@ -403,13 +406,10 @@ public:
         return addCharacteristic(characteristic);
     }
 
-    int setPPCP(void);
     int setPPCP(uint16_t minInterval, uint16_t maxInterval, uint16_t latency = BLE_DEFAULT_SLAVE_LATENCY, uint16_t timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT);
 
-    BlePeerDevice connect(const BleAddress& addr,
-            uint16_t interval = BLE_DEFAULT_MIN_CONN_INTERVAL,
-            uint16_t latency = BLE_DEFAULT_SLAVE_LATENCY,
-            uint16_t timeout = BLE_DEFAULT_CONN_SUP_TIMEOUT);
+    BlePeerDevice connect(const BleAddress& addr, uint16_t interval, uint16_t latency, uint16_t timeout);
+    BlePeerDevice connect(const BleAddress& addr);
 
     int disconnect(void);
     int disconnect(const BlePeerDevice& peripheral);
@@ -433,7 +433,7 @@ private:
 
     BleLocalDevice();
     ~BleLocalDevice();
-    static void onBleEvents(hal_ble_evts_t *event, void* context);
+    static void onBleEvents(const hal_ble_evts_t *event, void* context);
     BlePeerDevice* findPeerDevice(BleConnHandle connHandle);
 };
 

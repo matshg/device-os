@@ -976,7 +976,7 @@ int BleControlRequestChannel::sendPacket() {
         return 0; // Nothing to send
     }
     // Send packet
-    const int ret = ble_gatt_server_notify_characteristic_value(connHandle_, sendCharHandle_, (const uint8_t*)packetBuf_.get(), packetSize_, nullptr);
+    const int ret = ble_gatt_server_set_characteristic_value(sendCharHandle_, (const uint8_t*)packetBuf_.get(), packetSize_, nullptr);
     if (ret != (int)packetSize_) {
         LOG(ERROR, "ble_gatt_server_notify_characteristic_value() failed: %d", ret);
         return ret;
@@ -1093,6 +1093,8 @@ int BleControlRequestChannel::dataReceived(const hal_ble_evts_t& event) {
 }
 
 int BleControlRequestChannel::initProfile() {
+    ble_stack_init(NULL);
+
     // Set PPCP (Peripheral Preferred Connection Parameters)
     hal_ble_conn_params_t connParam = {};
     connParam.min_conn_interval = BLE_DEFAULT_MIN_CONN_INTERVAL;
@@ -1356,7 +1358,7 @@ void BleControlRequestChannel::freePooledBuffer(Buffer* buf) {
 }
 
 // Note: This method is called from an ISR
-void BleControlRequestChannel::processBleEvent(hal_ble_evts_t *event, void* context) {
+void BleControlRequestChannel::processBleEvent(const hal_ble_evts_t *event, void* context) {
     const auto ch = (BleControlRequestChannel*)context;
     int ret = 0;
     switch (event->type) {

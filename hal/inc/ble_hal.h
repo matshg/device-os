@@ -20,7 +20,6 @@
 
 #include "hal_platform.h"
 
-
 #if HAL_PLATFORM_BLE
 
 #include <stdint.h>
@@ -54,25 +53,25 @@ typedef struct {
     uint8_t type;
     union {
         uint16_t uuid16;
-        uint8_t  uuid128[BLE_SIG_UUID_128BIT_LEN];
+        uint8_t uuid128[BLE_SIG_UUID_128BIT_LEN];
     };
 } hal_ble_uuid_t;
 
 /* BLE advertising parameters */
 typedef struct {
-    uint8_t  version;
-    uint8_t  type;
-    uint8_t  filter_policy;
+    uint8_t version;
+    uint8_t type;
+    uint8_t filter_policy;
     uint16_t interval;                  /**< Advertising interval in 625 us units. */
     uint16_t timeout;                   /**< Advertising timeout in 10 ms units.*/
-    uint8_t  inc_tx_power;
+    uint8_t inc_tx_power;
 } hal_ble_adv_params_t;
 
 /* BLE scanning parameters */
 typedef struct {
-    uint8_t  version;
-    uint8_t  active;
-    uint8_t  filter_policy;
+    uint8_t version;
+    uint8_t active;
+    uint8_t filter_policy;
     uint16_t interval;                  /**< Scan interval in 625 us units. */
     uint16_t window;                    /**< Scan window in 625 us units. */
     uint16_t timeout;                   /**< Scan timeout in 10 ms units. */
@@ -89,17 +88,17 @@ typedef struct {
 
 /* BLE service definition */
 typedef struct {
-    uint8_t        version;
-    uint16_t       start_handle;
-    uint16_t       end_handle;
+    uint8_t version;
+    uint16_t start_handle;
+    uint16_t end_handle;
     hal_ble_uuid_t uuid;
 } hal_ble_svc_t;
 
 typedef struct {
-    uint8_t        version;
-    uint8_t        properties;
-    uint16_t       service_handle;
-    const char*    description;
+    uint8_t version;
+    uint8_t properties;
+    uint16_t service_handle;
+    const char* description;
     hal_ble_uuid_t uuid;
 } hal_ble_char_init_t;
 
@@ -113,41 +112,34 @@ typedef struct {
 
 /* BLE characteristic definition */
 typedef struct {
-    uint8_t        version;
-    uint8_t        char_ext_props : 1;
-    uint8_t        properties;
-    uint16_t       decl_handle;
-    uint16_t       value_handle;
-    uint16_t       user_desc_handle;
-    uint16_t       cccd_handle;
-    uint16_t       sccd_handle;
+    uint8_t version;
+    uint8_t char_ext_props : 1;
+    uint8_t properties;
+    uint16_t decl_handle;
+    uint16_t value_handle;
+    uint16_t user_desc_handle;
+    uint16_t cccd_handle;
+    uint16_t sccd_handle;
     hal_ble_uuid_t uuid;
 } hal_ble_char_t;
 
 typedef struct {
-    uint8_t        version;
-    uint16_t       char_handle;
-    uint8_t*       descriptor;
-    uint16_t       len;
+    uint8_t version;
+    uint16_t char_handle;
+    uint8_t* descriptor;
+    uint16_t len;
     hal_ble_uuid_t uuid;
 } hal_ble_desc_init_t;
-
-/* BLE descriptor definition */
-typedef struct {
-    uint8_t        version;
-    uint16_t       handle;
-    hal_ble_uuid_t uuid;
-} hal_ble_desc_t;
 
 /* BLE events structure */
 typedef struct {
     uint8_t version;
-    void*   reserved;
+    void* reserved;
 } hal_ble_gap_on_adv_stopped_evt_t;
 
 typedef struct {
-    uint8_t  version;
-    int8_t   rssi;
+    uint8_t version;
+    int8_t rssi;
     struct {
         uint16_t connectable   : 1;     /**< Connectable advertising event type. */
         uint16_t scannable     : 1;     /**< Scannable advertising event type. */
@@ -156,18 +148,13 @@ typedef struct {
         uint16_t extended_pdu  : 1;     /**< Received an extended advertising set. */
     } type;
     uint16_t data_len;
-    uint8_t  data[BLE_MAX_SCAN_REPORT_BUF_LEN];
+    uint8_t* data;
     hal_ble_addr_t peer_addr;
 } hal_ble_gap_on_scan_result_evt_t;
 
 typedef struct {
     uint8_t version;
-    void*   reserved;
-} hal_ble_gap_on_scan_stopped_evt_t;
-
-typedef struct {
-    uint8_t  version;
-    uint8_t  role;
+    uint8_t role;
     uint16_t conn_handle;
     uint16_t conn_interval;             /**< Connection Interval in 1.25 ms units.*/
     uint16_t slave_latency;             /**< Slave Latency in number of connection events.*/
@@ -176,13 +163,13 @@ typedef struct {
 } hal_ble_gap_on_connected_evt_t;
 
 typedef struct {
-    uint8_t  version;
-    uint8_t  reason;
+    uint8_t version;
+    uint8_t reason;
     uint16_t conn_handle;
 } hal_ble_gap_on_disconnected_evt_t;
 
 typedef struct {
-    uint8_t  version;
+    uint8_t version;
     uint16_t conn_handle;
     uint16_t conn_interval;             /**< Connection Interval in 1.25 ms units.*/
     uint16_t slave_latency;             /**< Slave Latency in number of connection events.*/
@@ -190,52 +177,44 @@ typedef struct {
 } hal_ble_gap_on_conn_params_evt_t;
 
 typedef struct {
-    uint8_t  version;
+    uint8_t version;
     uint16_t conn_handle;
     uint16_t att_mtu_size;
 } hal_ble_gatt_on_params_updated_evt_t;
 
 typedef struct {
-    uint8_t  version;
+    uint8_t version;
     uint16_t conn_handle;
     uint8_t  count;
     hal_ble_svc_t* services;
 } hal_ble_gattc_on_svc_disc_evt_t;
 
 typedef struct {
-    uint8_t  version;
+    uint8_t version;
     uint16_t conn_handle;
-    uint8_t  count;
+    uint8_t count;
     hal_ble_char_t* characteristics;
 } hal_ble_gattc_on_char_disc_evt_t;
 
 typedef struct {
-    uint8_t  version;
-    uint16_t conn_handle;
-    uint8_t  count;
-    hal_ble_desc_t* descriptors;
-} hal_ble_gattc_on_desc_disc_evt_t;
-
-typedef struct {
-    uint8_t  version;
+    uint8_t version;
     uint16_t conn_handle;
     uint16_t attr_handle;
     uint16_t offset;
     uint16_t data_len;
-    uint8_t  data[BLE_MAX_ATTR_VALUE_PACKET_SIZE];
+    uint8_t* data;
 } hal_ble_gatt_on_data_evt_t;
 
 typedef enum {
+    BLE_EVT_UNKNOWN,
     BLE_EVT_ADV_STOPPED,
     BLE_EVT_SCAN_RESULT,
-    BLE_EVT_SCAN_STOPPED,
     BLE_EVT_CONNECTED,
     BLE_EVT_DISCONNECTED,
     BLE_EVT_CONN_PARAMS_UPDATED,
     BLE_EVT_GATT_PARAMS_UPDATED,
     BLE_EVT_SVC_DISCOVERED,
     BLE_EVT_CHAR_DISCOVERED,
-    BLE_EVT_DESC_DISCOVERED,
     BLE_EVT_DATA_WRITTEN,
     BLE_EVT_DATA_NOTIFIED
 } hal_ble_evts_type_t;
@@ -243,28 +222,29 @@ typedef enum {
 typedef struct {
     hal_ble_evts_type_t type;
     union {
-        hal_ble_gap_on_adv_stopped_evt_t  adv_stopped;
-        hal_ble_gap_on_scan_result_evt_t  scan_result;
-        hal_ble_gap_on_scan_stopped_evt_t scan_stopped;
-        hal_ble_gap_on_connected_evt_t    connected;
+        hal_ble_gap_on_adv_stopped_evt_t adv_stopped;
+        hal_ble_gap_on_scan_result_evt_t scan_result;
+        hal_ble_gap_on_connected_evt_t connected;
         hal_ble_gap_on_disconnected_evt_t disconnected;
-        hal_ble_gap_on_conn_params_evt_t  conn_params_updated;
+        hal_ble_gap_on_conn_params_evt_t conn_params_updated;
         hal_ble_gatt_on_params_updated_evt_t gatt_params_updated;
-        hal_ble_gattc_on_svc_disc_evt_t   svc_disc;
-        hal_ble_gattc_on_char_disc_evt_t  char_disc;
-        hal_ble_gattc_on_desc_disc_evt_t  desc_disc;
-        hal_ble_gatt_on_data_evt_t        data_rec;
+        hal_ble_gattc_on_svc_disc_evt_t svc_disc;
+        hal_ble_gattc_on_char_disc_evt_t char_disc;
+        hal_ble_gatt_on_data_evt_t data_rec;
     } params;
 } hal_ble_evts_t;
 
-typedef void (*on_ble_evt_cb_t)(hal_ble_evts_t *event, void* context);
-
+typedef void (*on_ble_evt_cb_t)(const hal_ble_evts_t *event, void* context);
+typedef void (*on_ble_scan_result_cb_t)(const hal_ble_gap_on_scan_result_evt_t *result, void* context);
+typedef void (*on_ble_disc_service_cb_t)(const hal_ble_gattc_on_svc_disc_evt_t *event, void* context);
+typedef void (*on_ble_disc_char_cb_t)(const hal_ble_gattc_on_char_disc_evt_t *event, void* context);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /**
+<<<<<<< HEAD
  * Check if the BLE stack is initialized.
  *
  * @returns     true if initialized, otherwise false.
@@ -308,6 +288,44 @@ int ble_set_callback_on_events(on_ble_evt_cb_t callback, void* context);
 int ble_gap_set_device_address(const hal_ble_addr_t* address);
 
 /**
+=======
+ * Initialize the BLE stack. This function must be called previous to any other BLE APIs.
+ *
+ * @param[in]   reserved    Reserved for future use.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_stack_init(void* reserved);
+
+/**
+ * Select the antenna for BLE radio.
+ *
+ * @param[in]   antenna The antenna type, either be BLE_ANT_INTERNAL or BLE_ANT_EXTERNAL.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_select_antenna(hal_ble_ant_type_t antenna);
+
+/**
+ * Set the callback on BLE events.
+ *
+ * @param[in]   callback    The callback function.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_set_callback_on_events(on_ble_evt_cb_t callback, void* context);
+
+/**
+ * Set local BLE identity address, which type must be either public or random.
+ *
+ * @param[in]   address Pointer to the BLE local identity address to be set.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_gap_set_device_address(const hal_ble_addr_t* address);
+
+/**
+>>>>>>> feature/ble/develop
  * Get local BLE identity address, which type is either public or random static.
  *
  * @param[out]  address Pointer to address structure to be filled in.
@@ -405,11 +423,9 @@ int ble_gap_set_tx_power(int8_t value);
 /**
  * Get the TX Power for advertisement.
  *
- * @param[out]  value   Pointer to radio transmit power in dBm to be filled in.
- *
- * @returns     0 on success, system_error_t on error.
+ * @returns     The current TX power.
  */
-int ble_gap_get_tx_power(int8_t* value);
+int8_t ble_gap_get_tx_power(void);
 
 /**
  * Set the BLE advertising parameters. Changing the advertising parameter during
@@ -421,27 +437,57 @@ int ble_gap_get_tx_power(int8_t* value);
  */
 int ble_gap_set_advertising_parameters(const hal_ble_adv_params_t* adv_params, void* reserved);
 
+
+/**
+ * Get the current BLE advertising parameters.
+ *
+ * @param[in,out]   adv_params  Pointer to the advertising parameters to be filled.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_gap_get_advertising_parameters(hal_ble_adv_params_t* adv_params, void* reserved);
+
 /**
  * Set the BLE advertising data. It will update the advertising data immediately if success.
  * Changing the advertising data during advertising will restart advertising using the
  * previous advertising parameters and the new advertising data.
  *
- * @param[in]   data    Pointer to the advertising data to be set.
+ * @param[in]   buf     Pointer to the advertising data to be set.
  * @param[in]   len     Length of the advertising data.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gap_set_advertising_data(const uint8_t* data, uint16_t len, void* reserved);
+int ble_gap_set_advertising_data(const uint8_t* buf, uint16_t len, void* reserved);
+
+/**
+ * Get the current BLE advertising data.
+ *
+ * @param[in,out]   buf     Pointer to the advertising data to be filled.
+ * @param[in]       len     Length of the given buffer.
+ *
+ * @returns     The length of copied data.
+ */
+size_t ble_gap_get_advertising_data(uint8_t* buf, uint16_t len, void* reserved);
 
 /**
  * Set the BLE scan response data.
  *
- * @param[in]   data    Pointer to the scan response data to be set.
+ * @param[in]   buf     Pointer to the scan response data to be set.
  * @param[in]   len     Length of the scan response data.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gap_set_scan_response_data(const uint8_t* data, uint16_t len, void* reserved);
+int ble_gap_set_scan_response_data(const uint8_t* buf, uint16_t len, void* reserved);
+
+/**
+ * Get the current BLE scan response data.
+ *
+ * @param[in,out]   buf     Pointer to the scan response data to be filled.
+ * @param[in]       len     Length of the given buffer.
+ *
+ * @returns     The length of copied data.
+ */
+size_t ble_gap_get_scan_response_data(uint8_t* buf, uint16_t len, void* reserved);
 
 /**
  * Start BLE advertising.
@@ -474,11 +520,23 @@ bool ble_gap_is_advertising(void);
 int ble_gap_set_scan_parameters(const hal_ble_scan_params_t* scan_params, void* reserved);
 
 /**
- * Start scanning nearby BLE devices.
+ * Get the BLE scanning parameters.
+ *
+ * @param[in,out]   scan_params Pointer to the scanning parameters to be filled.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gap_start_scan(void* reserved);
+int ble_gap_get_scan_parameters(hal_ble_scan_params_t* scan_params, void* reserved);
+
+/**
+ * Start scanning nearby BLE devices.
+ *
+ * @param[in] callback  The callback function to handle the scan results.
+ * @param[in] context   The callback function context.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_gap_start_scan(on_ble_scan_result_cb_t callback, void* context, void* reserved);
 
 /**
  * Check if BLE is scanning nearby devices.
@@ -498,11 +556,10 @@ int ble_gap_stop_scan(void);
  * Connect to a peer BLE device.
  *
  * @param[in]   address Pointer to the peer BLE identity address.
- * @param[in]   params  The connection parameters for the connection to be established.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gap_connect(const hal_ble_addr_t* address, const hal_ble_conn_params_t* params, void* reserved);
+int ble_gap_connect(const hal_ble_addr_t* address, void* reserved);
 
 /**
  * Check if BLE is connecting with peer device.
@@ -514,9 +571,12 @@ bool ble_gap_is_connecting(void);
 /**
  * Check if BLE is connected with peer device.
  *
+ * @param[in]   address Pointer to the peer BLE identity address.
+ *                      If NULL, it returns true as long as there has on-going connections.
+ *
  * @returns true if connected, otherwise false.
  */
-bool ble_gap_is_connected(void);
+bool ble_gap_is_connected(const hal_ble_addr_t* address);
 
 /**
  * Cancel the ongoing procedure that connecting to the peer BLE device.
@@ -547,6 +607,16 @@ int ble_gap_disconnect(uint16_t conn_handle, void* reserved);
  * @returns     0 on success, system_error_t on error.
  */
 int ble_gap_update_connection_params(uint16_t conn_handle, const hal_ble_conn_params_t* conn_params, void* reserved);
+
+/**
+ * Get connection parameters.
+ *
+ * @param[in]       conn_handle BLE connection handle.
+ * @param[in,out]   conn_params Pointer to a hal_ble_conn_params_t structure to be filled.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_gap_get_connection_params(uint16_t conn_handle, hal_ble_conn_params_t* conn_params, void* reserved);
 
 /**
  * Get the RSSI value of the specific BLE connection.
@@ -596,100 +666,71 @@ int ble_gatt_server_add_descriptor(const hal_ble_desc_init_t* desc_init, uint16_
  * Set Characteristic value..
  *
  * @param[in]   value_handle    Characteristic value handle.
- * @param[in]   data            Pointer to the buffer that contains the data to be set.
+ * @param[in]   buf             Pointer to the buffer that contains the data to be set.
  * @param[in]   len             Length of the data to be set.
  *
- * @returns     0 on success, system_error_t on error.
+ * @returns     Length of the data has been set.
  */
-int ble_gatt_server_set_characteristic_value(uint16_t value_handle, const uint8_t* data, uint16_t len, void* reserved);
+size_t ble_gatt_server_set_characteristic_value(uint16_t value_handle, const uint8_t* buf, size_t len, void* reserved);
 
 /**
  * Get Characteristic value.
  *
- * @param[in]       value_handle    Characteristic value handle.
- * @param[in]       data            Pointer to the buffer that to be filled with the Characteristic value.
- * @param[in,out]   len             Length of the given buffer. Return the actual length of the value.
- *
- * @returns     0 on success, system_error_t on error.
- */
-int ble_gatt_server_get_characteristic_value(uint16_t value_handle, uint8_t* data, uint16_t* len, void* reserved);
-
-/**
- * Send a notification to GATT Client. No response from GATT Client is required.
- *
- * @param[in]   conn_handle     Connection handle.
  * @param[in]   value_handle    Characteristic value handle.
- * @param[in]   data            Pointer to the buffer that contains the data to be sent.
- * @param[in]   len             Length of the data to be sent.
+ * @param[in]   buf             Pointer to the buffer that to be filled with the Characteristic value.
+ * @param[in]   len             Length of the given buffer. Return the actual length of the value.
  *
- * @returns     0 on success, system_error_t on error.
+ * @returns     The length of read data.
  */
-int ble_gatt_server_notify_characteristic_value(uint16_t conn_handle, uint16_t value_handle, const uint8_t* data, uint16_t len, void* reserved);
-
-/**
- * Send an indication to GATT Client. A response from GATT Client is required.
- *
- * @param[in]   conn_handle     Connection handle.
- * @param[in]   value_handle    Characteristic value handle.
- * @param[in]   data            Pointer to the buffer that contains the data to be sent.
- * @param[in]   len             Length of the data to be sent.
- *
- * @returns     0 on success, system_error_t on error.
- */
-int ble_gatt_server_indicate_characteristic_value(uint16_t conn_handle, uint16_t value_handle, const uint8_t* data, uint16_t len, void* reserved);
+size_t ble_gatt_server_get_characteristic_value(uint16_t value_handle, uint8_t* buf, size_t len, void* reserved);
 
 /**
  * Discover all BLE primary services.
  *
  * @param[in]   conn_handle BLE connection handle.
+ * @param[in]   callback    The callback function to handle the discovered services.
+ * @param[in]   context     The callback function context.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gatt_client_discover_all_services(uint16_t conn_handle, void* reserved);
+int ble_gatt_client_discover_all_services(uint16_t conn_handle, on_ble_disc_service_cb_t callback, void* context, void* reserved);
 
 /**
  * Discover BLE service with specific 128-bits service UUID.
  *
  * @param[in]   conn_handle BLE connection handle.
  * @param[in]   uuid        Pointer to the service UUID.
+ * @param[in]   callback    The callback function to handle the discovered services.
+ * @param[in]   context     The callback function context.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gatt_client_discover_service_by_uuid(uint16_t conn_handle, const hal_ble_uuid_t* uuid, void* reserved);
+int ble_gatt_client_discover_service_by_uuid(uint16_t conn_handle, const hal_ble_uuid_t* uuid, on_ble_disc_service_cb_t callback, void* context, void* reserved);
 
 /**
  * Discover all BLE characteristics within specific handle range.
  *
- * @param[in]   conn_handle     BLE connection handle.
- * @param[in]   start_handle    The start handle of the handle range.
- * @param[in]   end_handle      The end handle of the handle range.
+ * @param[in]   conn_handle BLE connection handle.
+ * @param[in]   service     The service to be discovered.
+ * @param[in]   callback    The callback function to handle the discovered characteristics.
+ * @param[in]   context     The callback function context.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gatt_client_discover_characteristics(uint16_t conn_handle, uint16_t start_handle, uint16_t end_handle, void* reserved);
+int ble_gatt_client_discover_characteristics(uint16_t conn_handle, const hal_ble_svc_t* service, on_ble_disc_char_cb_t callback, void* context, void* reserved);
 
 /**
  * Discover all BLE characteristics within specific handle range.
  *
- * @param[in]   conn_handle     BLE connection handle.
- * @param[in]   start_handle    The start handle of the handle range.
- * @param[in]   end_handle      The end handle of the handle range.
- * @param[in]   uuid            The specific characteristic UUID.
+ * @param[in]   conn_handle BLE connection handle.
+ * @param[in]   service     The service to be discovered.
+ * @param[in]   uuid        The specific characteristic UUID.
+ * @param[in]   callback    The callback function to handle the discovered characteristics.
+ * @param[in]   context     The callback function context.
  *
  * @returns     0 on success, system_error_t on error.
  */
-int ble_gatt_client_discover_characteristics_by_uuid(uint16_t conn_handle, uint16_t start_handle, uint16_t end_handle, const hal_ble_uuid_t* uuid, void* reserved);
-
-/**
- * Discover all BLE descriptors within specific handle range.
- *
- * @param[in]   conn_handle     BLE connection handle.
- * @param[in]   start_handle    The start handle of the handle range.
- * @param[in]   end_handle      The end handle of the handle range.
- *
- * @returns     0 on success, system_error_t on error.
- */
-int ble_gatt_client_discover_descriptors(uint16_t conn_handle, uint16_t start_handle, uint16_t end_handle, void* reserved);
+int ble_gatt_client_discover_characteristics_by_uuid(uint16_t conn_handle, const hal_ble_svc_t* service, const hal_ble_uuid_t* uuid, on_ble_disc_char_cb_t callback, void* context, void* reserved);
 
 /**
  * Check if the BLE discovery procedure is ongoing or not.
@@ -697,6 +738,15 @@ int ble_gatt_client_discover_descriptors(uint16_t conn_handle, uint16_t start_ha
  * @returns True if BLE is discovering services, characteristics or descriptors, otherwise false.
  */
 bool ble_gatt_client_is_discovering(void);
+
+/**
+ * Set the desired ATT_MTU size.
+ *
+ * @param[in]   att_mtu     The desired ATT_MTU size.
+ *
+ * @returns     0 on success, system_error_t on error.
+ */
+int ble_gatt_client_set_att_mtu(uint16_t att_mtu, void* reserved);
 
 /**
  * Configure the Client Characteristic Configuration Descriptor.
@@ -714,34 +764,36 @@ int ble_gatt_client_configure_cccd(uint16_t conn_handle, uint16_t cccd_handle, u
  *
  * @param[in]   conn_handle     BLE connection handle.
  * @param[in]   value_handle    The peer device's Characteristic value handle.
- * @param[in]   data            Pointer to the buffer that contains the data to be written.
+ * @param[in]   buf             Pointer to the buffer that contains the data to be written.
  * @param[in]   len             Length of the data to be written.
  *
- * @returns     0 on success, system_error_t on error.
+ * @returns     The length of written data.
  */
-int ble_gatt_client_write_with_response(uint16_t conn_handle, uint16_t value_handle, const uint8_t* data, uint16_t len, void* reserved);
+size_t ble_gatt_client_write_with_response(uint16_t conn_handle, uint16_t value_handle, const uint8_t* buf, size_t len, void* reserved);
 
 /**
  * Write data to GATT server without a response required from peer device.
  *
  * @param[in]   conn_handle     BLE connection handle.
  * @param[in]   value_handle    The peer device's Characteristic value handle.
- * @param[in]   data            Pointer to the buffer that contains the data to be written.
+ * @param[in]   buf             Pointer to the buffer that contains the data to be written.
  * @param[in]   len             Length of the data to be written.
  *
- * @returns     0 on success, system_error_t on error.
+ * @returns     The length of written data.
  */
-int ble_gatt_client_write_without_response(uint16_t conn_handle, uint16_t value_handle, const uint8_t* data, uint16_t len, void* reserved);
+size_t ble_gatt_client_write_without_response(uint16_t conn_handle, uint16_t value_handle, const uint8_t* buf, size_t len, void* reserved);
 
 /**
  * Read data from GATT server. The data is returned through a BLE event.
  *
  * @param[in]   conn_handle     BLE connection handle.
  * @param[in]   value_handle    The peer device's Characteristic value handle.
+ * @param[in]   buf             Pointer to the buffer to be filled.
+ * @param[in]   len             Length of the given buffer.
  *
- * @returns     0 on success, system_error_t on error.
+ * @returns     The length of read data.
  */
-int ble_gatt_client_read(uint16_t conn_handle, uint16_t attr_handle, uint8_t* data, uint16_t* len, void* reserved);
+size_t ble_gatt_client_read(uint16_t conn_handle, uint16_t attr_handle, uint8_t* buf, size_t len, void* reserved);
 
 
 #ifdef __cplusplus
