@@ -8,7 +8,7 @@ function display_help ()
     echo "\
 usage: release.sh [--output-directory=<binary_output_directory>]
                   (--platform=<argon|argon-som|boron|boron-som...
-                  |core|electron|p1|photon|xenon|xenon-som>...
+                  |core|electron|p1|photon|xenon|xenon-som|bg96>...
                   | --platform-id=<0|6|8|10|12|13|14|22|23|24>)
                   [--debug] [--help] [--tests]
 
@@ -247,6 +247,10 @@ elif [ ! -z $PLATFORM ]; then
             PLATFORM_ID="24"
             MESH=true
             ;;
+        "bg96")
+            PLATFORM_ID="25"
+            MESH=true
+            ;;
         *)
             echo "ERROR: No rules to release platform: \"$PLATFORM\"!"
             exit 6
@@ -292,6 +296,10 @@ else
             ;;
         24)
             PLATFORM="xenon-som"
+            MESH=true
+            ;;
+        25)
+            PLATFORM="bg96"
             MESH=true
             ;;
         *)
