@@ -202,7 +202,7 @@ int BorderRouterManager::enable() {
             config_.mPreference = OT_ROUTE_PREFERENCE_HIGH;
 #elif PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_ARGON_SOM
             config_.mPreference = OT_ROUTE_PREFERENCE_MED;
-#elif PLATFORM_ID == PLATFORM_BORON || PLATFORM_ID == PLATFORM_BORON_SOM
+#elif PLATFORM_ID == PLATFORM_BORON || PLATFORM_ID == PLATFORM_BORON_SOM || PLATFORM_ID == PLATFORM_BG96
             config_.mPreference = OT_ROUTE_PREFERENCE_LOW;
 #endif
             config_.mPreferred = 1;

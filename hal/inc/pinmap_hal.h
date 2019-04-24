@@ -91,12 +91,15 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 * Pin mapping. Borrowed from Wiring
 */
 #if PLATFORM_ID == PLATFORM_XENON || PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON || \
-    PLATFORM_ID == PLATFORM_XENON_SOM || PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM
+    PLATFORM_ID == PLATFORM_XENON_SOM || PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM \
+    PLATFORM_ID == PLATFORM_BG96
 
 #if PLATFORM_ID == PLATFORM_XENON || PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON
 #define TOTAL_ANALOG_PINS   6
-#else
-#define TOTAL_ANALOG_PINS   8 // SoM
+#elif PLATFORM_ID == PLATFORM_XENON_SOM || PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM
+#define TOTAL_ANALOG_PINS   8
+#elif PLATFORM_ID == PLATFORM_BG96
+#define TOTAL_ANALOG_PINS   8
 #endif
 
 #define FIRST_ANALOG_PIN    D14
@@ -147,6 +150,13 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 
 #endif
 
+#if PLATFORM_ID == PLATFORM_BG96
+#define D20             20
+#define D21             21
+#define D22             28
+#define D23             29
+#endif
+
 // analog pins
 #define A0              D19
 #define A1              D18
@@ -160,8 +170,14 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define A7              D20
 #endif
 
+#if PLATFORM_ID == PLATFORM_BG96
+#define A6              D21
+#define A7              D20
+#endif
+
 // SPI pins
-#if PLATFORM_ID == PLATFORM_XENON_SOM || PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM
+#if PLATFORM_ID == PLATFORM_XENON_SOM || PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM \
+    PLATFORM_ID == PLATFORM_BG96
 #define SS              D8
 #else
 #define SS              D14
@@ -195,11 +211,16 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define RX1             25
 #define CTS1            26
 #define RTS1            27
-#else // Argon SoM and Boron SoM
+#elif PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_BORON_SOM
 #define TX1             30
 #define RX1             31
 #define CTS1            32
 #define RTS1            33
+#elif PLATFORM_ID == PLATFORM_BG96
+#define TX1             30
+#define RX1             31
+#define CTS1            32  // TODO: modify CTS1 pin in pinmap_hal.c
+#define RTS1            33  // TODO: modify RTS1 pin in pinmap_hal.c
 #endif
 
 #if PLATFORM_ID == PLATFORM_XENON || PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON
@@ -212,7 +233,8 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define RGBG            22
 #define RGBB            23
 
-#else // Mesh SoMs
+#elif PLATFORM_ID == PLATFORM_XENON_SOM || PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM \
+      PLATFORM_ID == PLATFORM_BG96
 
 // button pin
 #define BTN             22
@@ -286,6 +308,15 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define UBRST           35
 #define BUFEN           36
 #define UBVINT          37
+#endif
+
+#if PLATFORM_ID == PLATFORM_BG96
+#define TOTAL_PINS      (39)
+#define BGPWR           34
+#define BGRST           35
+#define BUFEN           36
+#define BGVINT          37
+#define BGDTR           38
 #endif
 
 // TODO: Move this to a platform-specific header
