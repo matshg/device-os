@@ -63,5 +63,3 @@ SYSTEM_PART1_SRC_PATH = $(SYSTEM_PART1_MODULE_PATH)/../../shared/nRF52840/src/sy
 
 CPPSRC += $(call target_files,$(SYSTEM_PART1_SRC_PATH),*.cpp)
 CSRC += $(call target_files,$(SYSTEM_PART1_SRC_PATH),*.c)
-
-CPPFLAGS += -std=gnu++11
