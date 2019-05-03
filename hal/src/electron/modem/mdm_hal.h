@@ -519,6 +519,7 @@ protected:
     static int _cbCPIN(int type, const char* buf, int len, Sim* sim);
     static int _cbCCID(int type, const char* buf, int len, char* ccid);
     // network
+    static int _cbCEDRXS(int type, const char* buf, int len, int* i);
     static int _cbUGCNTRD(int type, const char* buf, int len, MDM_DataUsage* data);
     static int _cbBANDAVAIL(int type, const char* buf, int len, MDM_BandSelect* data);
     static int _cbBANDSEL(int type, const char* buf, int len, MDM_BandSelect* data);
