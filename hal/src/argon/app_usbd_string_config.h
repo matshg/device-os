@@ -85,7 +85,7 @@
     APP_USBD_STRING_DESC("Argon CDC Mode")
 #else // Argon SoM
 #define APP_USBD_STRINGS_PRODUCT         \
-    APP_USBD_STRING_DESC("ASoM CDC Mode")
+    APP_USBD_STRING_DESC("Argon SoM CDC Mode")
 #endif
 
 
@@ -135,8 +135,8 @@
     X(USBD_WCID_STRING_IDX, = 0xee, APP_USBD_STRING_DESC("MSFT100\xee"))
 #else
 #define APP_USBD_STRINGS_USER \
-    X(APP_USER_1, , APP_USBD_STRING_DESC("ASoM Serial")) \
-    X(USBD_CONTROL_STRING_IDX, , APP_USBD_STRING_DESC("ASoM Control Interface")) \
+    X(APP_USER_1, , APP_USBD_STRING_DESC("Argon SoM Serial")) \
+    X(USBD_CONTROL_STRING_IDX, , APP_USBD_STRING_DESC("Argon SoM Control Interface")) \
     X(USBD_WCID_STRING_IDX, = 0xee, APP_USBD_STRING_DESC("MSFT100\xee"))
 #endif
 

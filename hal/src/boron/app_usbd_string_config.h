@@ -85,7 +85,7 @@
     APP_USBD_STRING_DESC("Boron CDC Mode")
 #else // Boron SoM
 #define APP_USBD_STRINGS_PRODUCT         \
-    APP_USBD_STRING_DESC("BSoM CDC Mode")
+    APP_USBD_STRING_DESC("Boron SoM CDC Mode")
 #endif
 
 
@@ -135,8 +135,8 @@
     X(USBD_WCID_STRING_IDX, = 0xee, APP_USBD_STRING_DESC("MSFT100\xee"))
 #else
 #define APP_USBD_STRINGS_USER \
-    X(APP_USER_1, , APP_USBD_STRING_DESC("BSoM Serial")) \
-    X(USBD_CONTROL_STRING_IDX, , APP_USBD_STRING_DESC("BSoM Control Interface")) \
+    X(APP_USER_1, , APP_USBD_STRING_DESC("Boron SoM Serial")) \
+    X(USBD_CONTROL_STRING_IDX, , APP_USBD_STRING_DESC("Boron SoM Control Interface")) \
     X(USBD_WCID_STRING_IDX, = 0xee, APP_USBD_STRING_DESC("MSFT100\xee"))
 #endif
 
