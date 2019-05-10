@@ -1330,8 +1330,8 @@ bool SparkProtocol::function_result(const void* result, SparkReturnType::Enum, u
 bool SparkProtocol::handle_function_call(msg& message)
 {
     // copy the function key
-    char function_key[MAX_FUNCTION_KEY_LENGTH+1];
-    memset(function_key, 0, MAX_FUNCTION_KEY_LENGTH+1);
+    char function_key[MAX_FUNCTION_KEY_LENGTH+1];  // add one for null terminator
+    memset(function_key, 0, sizeof(function_key));
 
     uint8_t queue_offset = 8;
     size_t function_key_length = queue[7] & 0x0F;
@@ -1344,6 +1344,11 @@ bool SparkProtocol::handle_function_call(msg& message)
     // {
     //     // MAX_OPTION_DELTA_LENGTH+2 not supported and not required for function_key_length
     // }
+    if (function_key_length > MAX_FUNCTION_KEY_LENGTH)
+    {
+        function_key_length = MAX_FUNCTION_KEY_LENGTH;
+        // already memset to 0, so null terminator padded to end
+    }
     memcpy(function_key, queue + queue_offset, function_key_length);
 
     // How long is the argument?
@@ -1354,7 +1359,7 @@ bool SparkProtocol::handle_function_call(msg& message)
         ++q_index;
         function_arg_length = MAX_OPTION_DELTA_LENGTH+1 + queue[q_index];
     }
-    else if (function_arg_length + MAX_OPTION_DELTA_LENGTH+2)
+    else if (function_arg_length == MAX_OPTION_DELTA_LENGTH+2)
     {
         ++q_index;
         function_arg_length = queue[q_index] << 8;
@@ -1363,16 +1368,18 @@ bool SparkProtocol::handle_function_call(msg& message)
         function_arg_length += 269;
     }
 
-    bool has_function = false;
-
+    bool has_function = true;
     // allocated memory bounds check
-    if (function_arg_length <= MAX_FUNCTION_ARG_LENGTH)
+    if (function_arg_length > MAX_FUNCTION_ARG_LENGTH)
     {
-        // save a copy of the argument
-        memcpy(function_arg, queue + q_index + 1, function_arg_length);
-        function_arg[function_arg_length] = 0; // null terminate string
-        has_function = true;
+        function_arg_length = MAX_FUNCTION_ARG_LENGTH;
+        has_function = false;
+        // in case we got here due to inconceivable error, memset with null terminators
+        memset(function_arg, 0, sizeof(function_arg));
     }
+    // save a copy of the argument
+    memcpy(function_arg, queue + q_index + 1, function_arg_length);
+    function_arg[function_arg_length] = 0; // null terminate string
 
     uint8_t* msg_to_send = message.response;
     // send ACK
