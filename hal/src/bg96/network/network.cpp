@@ -29,7 +29,7 @@
 #include "usart_hal.h"
 #include "ncp.h"
 #include "pppncpnetif.h"
-#include "sara_ncp_client.h"
+#include "quectel_ncp_client.h"
 #include "platform_ncp.h"
 #include "lwip_util.h"
 #include "core_hal.h"
@@ -86,7 +86,7 @@ private:
         conf.dataHandler(PppNcpNetif::ncpDataHandlerCb, pp3);
         // Initialize NCP client
         std::unique_ptr<CellularNcpClient> client;
-        client.reset(new(std::nothrow) SaraNcpClient);
+        client.reset(new(std::nothrow) QuectelNcpClient);
         CHECK_TRUE(client, SYSTEM_ERROR_NO_MEMORY);
         CHECK(client->init(conf));
         // Initialize network manager

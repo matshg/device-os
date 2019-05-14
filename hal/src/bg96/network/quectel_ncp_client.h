@@ -30,10 +30,10 @@ namespace particle {
 
 class SerialStream;
 
-class SaraNcpClient: public CellularNcpClient {
+class QuectelNcpClient: public CellularNcpClient {
 public:
-    SaraNcpClient();
-    ~SaraNcpClient();
+    QuectelNcpClient();
+    ~QuectelNcpClient();
 
     // Reimplemented from NcpClient
     int init(const NcpClientConfig& conf) override;
@@ -113,19 +113,19 @@ private:
     int modemSetUartState(bool state) const;
 };
 
-inline AtParser* SaraNcpClient::atParser() {
+inline AtParser* QuectelNcpClient::atParser() {
     return &parser_;
 }
 
-inline void SaraNcpClient::lock() {
+inline void QuectelNcpClient::lock() {
     mutex_.lock();
 }
 
-inline void SaraNcpClient::unlock() {
+inline void QuectelNcpClient::unlock() {
     mutex_.unlock();
 }
 
-inline void SaraNcpClient::parserError(int error) {
+inline void QuectelNcpClient::parserError(int error) {
     parserError_ = error;
 }
 
