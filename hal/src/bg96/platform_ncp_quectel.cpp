@@ -30,6 +30,7 @@ bool isValidNcpId(uint8_t id) {
     case MeshNCPIdentifier::MESH_NCP_SARA_U201:
     case MeshNCPIdentifier::MESH_NCP_SARA_G350:
     case MeshNCPIdentifier::MESH_NCP_SARA_R410:
+    case MeshNCPIdentifier::MESH_NCP_QUECTEL_BG96:
         return true;
     default:
         return false;

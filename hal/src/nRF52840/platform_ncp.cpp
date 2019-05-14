@@ -28,6 +28,7 @@ MeshNCPIdentifier platform_ncp_identifier(module_info_t* mi)
 		case MESH_NCP_SARA_U201:
 		case MESH_NCP_SARA_G350:
 		case MESH_NCP_SARA_R410:
+        case MESH_NCP_QUECTEL_BG96:
 			ncp = static_cast<MeshNCPIdentifier>(mi->reserved);
 			break;
 		}
