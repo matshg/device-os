@@ -211,16 +211,16 @@ STM32_Pin_Info* HAL_Pin_Map(void);
 #define RX1             25
 #define CTS1            26
 #define RTS1            27
-#elif PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_BORON_SOM
+#elif PLATFORM_ID == PLATFORM_ARGON_SOM || PLATFORM_ID == PLATFORM_BORON_SOM
 #define TX1             30
 #define RX1             31
 #define CTS1            32
 #define RTS1            33
 #elif PLATFORM_ID == PLATFORM_BG96
-#define TX1             30
-#define RX1             31
-#define CTS1            32  // TODO: modify CTS1 pin in pinmap_hal.c
-#define RTS1            33  // TODO: modify RTS1 pin in pinmap_hal.c
+#define TX1             31
+#define RX1             30
+#define CTS1            A0 // 32  // TODO: modify CTS1 pin in pinmap_hal.c
+#define RTS1            A7 // 33  // TODO: modify RTS1 pin in pinmap_hal.c
 #endif
 
 #if PLATFORM_ID == PLATFORM_XENON || PLATFORM_ID == PLATFORM_ARGON || PLATFORM_ID == PLATFORM_BORON
